@@ -5,15 +5,16 @@
 -- https://alloder.pro/topic/260-how-to-libdndlua-biblioteka-dragdrop/
 --------------------------------------------------------------------------------
 Global( "DnD", {} )
+
 -- PUBLIC FUNCTIONS --
 function DnD.Init( wtMovable, wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1, oldParam2 )
 	if wtMovable == DnD then
 		wtMovable, wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1 =
-		           wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1, oldParam2
+		wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1, oldParam2
 	end
 	if type(wtMovable) == "number" then
 		wtReacting, wtMovable, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1 =
-		           wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1, oldParam2
+		wtReacting, fUseCfg, fLockedToParentArea, Padding, KbFlag, Cursor, oldParam1, oldParam2
 	end
 	if type(wtMovable) ~= "userdata" then return end
 	if not DnD.Widgets then
@@ -58,13 +59,6 @@ function DnD.Init( wtMovable, wtReacting, fUseCfg, fLockedToParentArea, Padding,
 		end
 	end
 	DnD.Widgets[ ID ].Initial = { X = InitialPlace.posX, Y = InitialPlace.posY, HX = InitialPlace.highPosX, HY = InitialPlace.highPosY }
-	local mt = getmetatable( wtReacting )
-	if not mt._Show then
-		mt._Show = mt.Show
-		mt.Show = function ( self, show )
-			self:_Show( show ); DnD.Register( self, show )
-		end
-	end
 	DnD.Register( wtReacting, true )
 end
 function DnD.Remove( wtWidget, oldParam1 )
@@ -128,7 +122,7 @@ function DnD.Register( wtWidget, fRegister )
 	if not DnD.Widgets then return end
 	local ID = DnD.GetWidgetID( wtWidget )
 	if ID then
-		if fRegister and DnD.Widgets[ ID ].Enabled and DnD.Widgets[ ID ].wtReacting:IsVisible() then
+		if fRegister and DnD.Widgets[ ID ].Enabled then
 			mission.DNDRegister( DnD.Widgets[ ID ].wtReacting, ID, true )
 		elseif not fRegister then
 			if DnD.Dragging == ID then
@@ -214,7 +208,14 @@ end
 -----------------------------------------------------------------------------------------------------------
 function DnD.OnPickAttempt( params )
 	local Picking = params.srcId
-	if DnD.Widgets[ Picking ] and DnD.Widgets[ Picking ].Enabled and ( not DnD.Widgets[ Picking ].KbFlag or DnD.Widgets[ Picking ].KbFlag == KBF_NONE and params.kbFlags == KBF_NONE or common.GetBitAnd( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0 ) then
+
+	if DnD.Widgets[ Picking ] and DnD.Widgets[ Picking ].Enabled
+			and (
+			not DnD.Widgets[ Picking ].KbFlag
+					or DnD.Widgets[ Picking ].KbFlag == KBF_NONE
+					and params.kbFlags == KBF_NONE
+					or (common.GetBitAnd and common.GetBitAnd( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0  or bit.band( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0)
+	) then
 		DnD.Place = DnD.Widgets[ Picking ].wtMovable:GetPlacementPlain()
 		DnD.Reset = DnD.Widgets[ Picking ].wtMovable:GetPlacementPlain()
 		DnD.Cursor = { X = params.posX , Y = params.posY }

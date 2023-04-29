@@ -4,7 +4,6 @@
 	<Priority>10000</Priority>
 	<Children>
 		<Item href="Timer/TimerText.(WidgetTextView).xdb" />
-		<Item href="Icons/Marker/Marker.(WidgetPanel).xdb" />
 	</Children>
 	<Placement>
 		<QuantumScale>false</QuantumScale>

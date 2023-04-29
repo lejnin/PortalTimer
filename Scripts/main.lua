@@ -3,7 +3,6 @@ local valuedText = common.CreateValuedText()
 local wtTimerText
 local willBeDestroyedAt
 local currentMechanismObjectId
-local wtMapMarkers, wtMinimapSquareMarkers, wtMinimapCircleMarkers, avatarCordsAtPortalSetting, wtPortalMarker
 
 
 function LogToChat(text)
@@ -53,10 +52,6 @@ function UpdateTimers()
 end
 
 function SetMechanismInfo(followerId)
-    avatarCordsAtPortalSetting = object.GetPos(avatar.GetId())
-
-    onCanvasChanged()
-
     local remainingMs = GetMechanismRemainingTime(followerId)
     if remainingMs == nil then
         DestroyMechanism()
@@ -104,7 +99,6 @@ function GetMechanismRemainingTime(followerId)
 end
 
 function DestroyMechanism()
-    avatarCordsAtPortalSetting = nil
     currentMechanismObjectId = nil
     willBeDestroyedAt = nil
     wtTimerText:SetVal('value', '')
@@ -115,89 +109,6 @@ function DestroyMechanism()
     common.UnRegisterEventHandler(OnZoneChanged, "EVENT_AVATAR_MAP_CHANGED")
 end
 
-local function getMapMarkers()
-    if not wtMapMarkers or not wtMapMarkers:IsValid() then
-        local wtMap = stateMainForm:GetChildUnchecked('Map', false)
-        wtMapMarkers = wtMap and wtMap:GetChildUnchecked('Markers', true)
-        if wtMapMarkers then wtMapMarkers:SetOnShowNotification(true) end
-    end
-    return wtMapMarkers
-end
-
-local function getMinimapSquareMarkers()
-    if not wtMinimapSquareMarkers or not wtMinimapSquareMarkers:IsValid() then
-        local wtMinimap = stateMainForm:GetChildUnchecked('Minimap', false)
-        local wtSquare = wtMinimap and wtMinimap:GetChildUnchecked('Square', false)
-        wtMinimapSquareMarkers = wtSquare and wtSquare:GetChildUnchecked('Markers', true)
-        if wtMinimapSquareMarkers then wtMinimapSquareMarkers:SetOnShowNotification(true) end
-    end
-    return wtMinimapSquareMarkers
-end
-
-local function getMinimapCircleMarkers()
-    if not wtMinimapCircleMarkers or not wtMinimapCircleMarkers:IsValid() then
-        local wtMinimap = stateMainForm:GetChildUnchecked('Minimap', false)
-        local wtCircle = wtMinimap and wtMinimap:GetChildUnchecked('Circle', false)
-        wtMinimapCircleMarkers = wtCircle and wtCircle:GetChildUnchecked('Markers', true)
-        if wtMinimapCircleMarkers then wtMinimapCircleMarkers:SetOnShowNotification(true) end
-    end
-    return wtMinimapCircleMarkers
-end
-
-local function getCanvas()
-    wtMapMarkers = getMapMarkers()
-    wtMinimapSquareMarkers = getMinimapSquareMarkers()
-    wtMinimapCircleMarkers = getMinimapCircleMarkers()
-    if wtMapMarkers and wtMapMarkers:IsVisibleEx() then
-        return wtMapMarkers
-    elseif wtMinimapSquareMarkers and wtMinimapSquareMarkers:IsVisibleEx() then
-        return wtMinimapSquareMarkers
-    elseif wtMinimapCircleMarkers and wtMinimapCircleMarkers:IsVisibleEx() then
-        return wtMinimapCircleMarkers
-    end
-end
-
-local function onWidgetShowChanged(p)
-    if not p.widget:IsValid() then return end
-    if wtMapMarkers and wtMapMarkers:IsEqual(p.widget) or wtMinimapSquareMarkers and wtMinimapSquareMarkers:IsEqual(p.widget) or wtMinimapCircleMarkers and wtMinimapCircleMarkers:IsEqual(p.widget) then
-        onCanvasChanged()
-    end
-end
-
-local function onAddonLoadStateChanged(p)
-    if p.name ~= 'Map' and p.name ~= 'Minimap' then return end
-    onCanvasChanged()
-end
-
-
-function onCanvasChanged()
-    local wtMarkers = getCanvas()
-    if not wtMarkers then return end
-
-    local zoneInfo = cartographer.GetCurrentZoneInfo()
-    local geodata = cartographer.GetObjectGeodata(avatar.GetId(), zoneInfo.zonesMapId)
-
-    local screenParams = widgetsSystem:GetPosConverterParams()
-    local canvasRect = wtMarkers:GetRealRect()
-
-    local MAP_TEXTURE_X = (canvasRect.x2 - canvasRect.x1) * (screenParams.fullVirtualSizeX / screenParams.realSizeX)
-    local MAP_TEXTURE_Y = (canvasRect.y2 - canvasRect.y1) * (screenParams.fullVirtualSizeY / screenParams.realSizeY)
-
-    local pixelsPerMeterX = (MAP_TEXTURE_X / geodata.width)
-    local pixelsPerMeterY = (MAP_TEXTURE_Y / geodata.height)
-
-    local mapCenterX = geodata.x + (geodata.width / 2)
-    local mapCenterY = geodata.y + (geodata.height / 2)
-
-    if wtPortalMarker ~= nil and avatarCordsAtPortalSetting ~= nil then
-        LogToChat('Отрисовываем!')
-        wtMarkers:AddChild(wtPortalMarker)
-        wtPortalMarker:SetSmartPlacementPlain {
-            posX = math.ceil((avatarCordsAtPortalSetting.posX - mapCenterX) * pixelsPerMeterX), -- вообще можно и не округлять, но я воровал код из доков и там так
-            posY = math.ceil((mapCenterY - avatarCordsAtPortalSetting.posY) * pixelsPerMeterY)
-        }
-    end
-end
 
 function OnSecondTimer()
     UpdateTimers()
@@ -239,19 +150,13 @@ function OnEventAvatarCreated()
         return
     end
 
-    wtPortalMarker = mainForm:GetChildUnchecked("Marker", false)
-    wtPortalMarker:SetSmartPlacementPlain{ sizeX = 200, sizeY = 200 }
-
     wtTimerText = mainForm:GetChildUnchecked("TimerText", false)
     local str = '<body color="0xFFFFFFFF" fontsize="' .. config['FONT_SIZE'] .. '" alignx="right" aligny="bottom" outline="1"><rs class="class"><r name="value"/></rs></body>'
     wtTimerText:SetFormat(userMods.ToWString(str))
+
     DnD.Init(wtTimerText, nil, true)
 
-    common.RegisterEventHandler(onWidgetShowChanged, 'EVENT_WIDGET_SHOW_CHANGED')
-    common.RegisterEventHandler(onAddonLoadStateChanged, 'EVENT_ADDON_LOAD_STATE_CHANGED')
     common.RegisterEventHandler(OnEventUnitFollowersListChanged, "EVENT_UNIT_FOLLOWERS_LIST_CHANGED")
-
-    onCanvasChanged()
 end
 
 function Init()
