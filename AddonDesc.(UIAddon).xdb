@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UIAddon>
+	<Name>PortalTimer</Name>
+	<localizedNameFileRef href="name.txt" />
+	<localizedDescFileRef href="desc.txt" />
+	<AutoStart>true</AutoStart>
+	<ScriptFileRefs>
+		<Item href="Scripts/LibDnD.lua" />
+		<Item href="config.lua" />
+		<Item href="Scripts/main.lua" />
+	</ScriptFileRefs>
+	<MainFormId>mainForm</MainFormId>
+	<Forms>
+		<Item>
+			<Id>mainForm</Id>
+			<Form href="Widgets/MainForm.(WidgetForm).xdb" />
+		</Item>
+	</Forms>
+</UIAddon>

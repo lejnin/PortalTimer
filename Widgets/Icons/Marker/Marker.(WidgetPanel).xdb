@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WidgetPanel>
+	<Name>Marker</Name>
+	<Priority>2</Priority>
+	<BackLayer href="Marker.(WidgetLayerSimpleTexture).xdb#xpointer(/WidgetLayerSimpleTexture)" />
+	<Placement>
+		<X>
+			<Size>20</Size>
+		</X>
+		<Y>
+			<Size>20</Size>
+		</Y>
+	</Placement>
+	<TransparentInput>true</TransparentInput>
+	<clipContent>false</clipContent>
+</WidgetPanel>

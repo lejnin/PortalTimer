@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WidgetForm>
+	<Name>MainForm</Name>
+	<Priority>10000</Priority>
+	<Children>
+		<Item href="Timer/TimerText.(WidgetTextView).xdb" />
+		<Item href="Icons/Marker/Marker.(WidgetPanel).xdb" />
+	</Children>
+	<Placement>
+		<QuantumScale>false</QuantumScale>
+		<X>
+			<Align>WIDGET_ALIGN_BOTH</Align>
+		</X>
+		<Y>
+			<Align>WIDGET_ALIGN_BOTH</Align>
+		</Y>
+	</Placement>
+	<Visible>true</Visible>
+	<Enabled>true</Enabled>
+	<TransparentInput>false</TransparentInput>
+	<PickChildrenOnly>true</PickChildrenOnly>
+</WidgetForm>
