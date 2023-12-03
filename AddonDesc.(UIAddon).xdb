@@ -10,10 +10,5 @@
 		<Item href="Scripts/main.lua" />
 	</ScriptFileRefs>
 	<MainFormId>mainForm</MainFormId>
-	<Forms>
-		<Item>
-			<Id>mainForm</Id>
-			<Form href="Widgets/MainForm.(WidgetForm).xdb" />
-		</Item>
-	</Forms>
+	<Form href="Widgets/MainForm.(WidgetForm).xdb" />
 </UIAddon>
